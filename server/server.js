@@ -24,9 +24,19 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
   console.log('New client connected.');
   //The socket arg above lets us call socket.on here just like we did in the .html file.
+  socket.emit('newMessage', {
+    from: 'Server',
+    text: 'Client, your friend in a far-away place says \'Hello.\'',
+    createdAt: new Date().getTime()
+  });
+
+  socket.on('createMessage', (data) => {
+    console.log('Client has sent new message.', data);
+  });
+
   socket.on('disconnect', () => {
     console.log('Client has disconnected.');
-  })
+  });
 });
 
 
