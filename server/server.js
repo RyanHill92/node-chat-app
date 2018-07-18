@@ -23,13 +23,26 @@ app.use(express.static(publicPath));
 //This message prints to my terminal every time I refresh @ the localhost3000.
 io.on('connection', (socket) => {
   console.log('New client connected.');
-  //The socket arg above lets us call socket.on here just like we did in the .html file.
+  socket.emit('newMessage', {
+    from: 'Admin',
+    text: 'Welcome to the chat room!'
+  });
+  //I had used separate custom event types here, but no need!
+  socket.broadcast.emit('newMessage', {
+    from: 'Admin',
+    text: 'A new user has entered the chat room.'
+  });
+
   socket.on('createMessage', (message) => {
     console.log('Client has sent new message.', message);
     io.emit('newMessage', {
       from: message.from,
       text: message.text,
       createdAt: new Date().getTime()
+    // socket.broadcast.emit('newMessage', {
+    //   from: message.from,
+    //   text: message.text,
+    //   createdAt: new Date().getTime()
     });
   });
 
