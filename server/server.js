@@ -29,8 +29,10 @@ io.on('connection', (socket) => {
   //I had used separate custom event types here, but no need!
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user has entered the chat room.'));
 
-  socket.on('createMessage', (message) => {
-    console.log('Client has sent new message.', message);
+  //The listener expects a callback to come with the event emission.
+  //It will call this function as ACKNOWLEDGEMENT of the event.
+  socket.on('createMessage', (message, callback) => {
+    callback('Data received.');
     io.emit('newMessage', generateMessage(message.from, message.text));
   });
 
