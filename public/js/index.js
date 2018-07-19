@@ -1,4 +1,30 @@
 var socket = io();
+
+function scrollToBottom () {
+  //Selectors.
+  var messages = document.querySelector('#messages');
+  var newMessage = messages.lastElementChild;
+  var lastMessage = newMessage.previousElementSibling;
+  //Heights.
+  var clientHeight = messages.clientHeight;
+  var scrollTop = messages.scrollTop;
+  var scrollHeight = messages.scrollHeight;
+  //Returns an object with all this element's CSS styling key-value pairs.
+  var newMessageStyle = window.getComputedStyle(newMessage, null);
+  var newMessageHeight = parseInt(newMessageStyle.getPropertyValue('height'));
+
+  if (lastMessage) {
+    var lastMessageStyle = window.getComputedStyle(lastMessage, null);
+    var lastMessageHeight = parseInt(lastMessageStyle.getPropertyValue('height'));
+  } else {
+    lastMessageHeight = 0;
+  }
+
+  if (clientHeight + scrollTop >= scrollHeight - lastMessageHeight - newMessageHeight) {
+    messages.scrollTop = scrollHeight;
+  }
+};
+
 socket.on('connect', () => {
   console.log('Connected to server.');
   // //The emitter sends along a function.
@@ -24,6 +50,7 @@ socket.on('newMessage', (message) => {
   // let li = document.createElement('li');
   // li.innerHTML = message.from + ', ' + '<em>' + time + '</em>' + ': ' + message.text;
   // document.querySelector('#messages').appendChild(li);
+  scrollToBottom();
 });
 
 socket.on('newLocationMessage', function(locationMessage) {
