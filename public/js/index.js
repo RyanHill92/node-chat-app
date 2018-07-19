@@ -9,22 +9,42 @@ socket.on('connect', () => {
 });
 
 socket.on('newMessage', (message) => {
-  let time = moment(message.createdAt).format('h:mm a');
-  let li = document.createElement('li');
-  li.innerHTML = message.from + ', ' + '<em>' + time + '</em>' + ': ' + message.text;
-  document.querySelector('#messages').appendChild(li);
+  //Select the template.
+  var template = document.querySelector('#message-template').innerHTML;
+  //Call render to create the element, passing any needed data.
+  var html = Mustache.render(template, {
+    from: message.from,
+    text: message.text,
+    time: moment(message.createdAt).format('h:mm a')
+  });
+  //Add that element in the desired location.
+  //Append child didn't work here because I was trying to add a string instead of a node.
+  document.querySelector('#messages').innerHTML += html;
+  // let time = moment(message.createdAt).format('h:mm a');
+  // let li = document.createElement('li');
+  // li.innerHTML = message.from + ', ' + '<em>' + time + '</em>' + ': ' + message.text;
+  // document.querySelector('#messages').appendChild(li);
 });
 
 socket.on('newLocationMessage', function(locationMessage) {
-  let time = moment(locationMessage.createdAt).format('h:mm a');
-  let li = document.createElement('li');
-  let a = document.createElement('a');
-  a.setAttribute('target', '_blank');
-  a.setAttribute('href', locationMessage.url);
-  li.innerHTML = locationMessage.from + ', ' + '<em>' + time + '</em>' + ': Check out my current ';
-  a.innerHTML = 'location.';
-  li.appendChild(a);
-  document.querySelector('#messages').appendChild(li);
+  //Grabs the whole block of HTML inside the script tags.
+  var template = document.querySelector('#location-message-template').innerHTML;
+  var html = Mustache.render(template, {
+    from: locationMessage.from,
+    time: moment(locationMessage.createdAt).format('h:mm a'),
+    url: locationMessage.url
+  });
+  document.querySelector('#messages').innerHTML += html;
+
+  // let time = moment(locationMessage.createdAt).format('h:mm a');
+  // let li = document.createElement('li');
+  // let a = document.createElement('a');
+  // a.setAttribute('target', '_blank');
+  // a.setAttribute('href', locationMessage.url);
+  // li.innerHTML = locationMessage.from + ', ' + '<em>' + time + '</em>' + ': Check out my current ';
+  // a.innerHTML = 'location.';
+  // li.appendChild(a);
+  // document.querySelector('#messages').appendChild(li);
 });
 
 socket.on('disconnect', () => {
