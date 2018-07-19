@@ -2,59 +2,34 @@
 <html>
 
 <head>
+  <title> Join | ChatApp </title>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 
-<body class="chat">
-  <div class="chat__sidebar">
-    <h3>People</h3>
-    <div id="users">
-    </div>
+<body class="centered-form">
+  <div class="centered-form__form">
+    <!--All form submission does is take you to the chat page...
+    ...but remember, default behavior is to add your input as query strings to the URL.--->
+    <form action="/chat.html">
+      <div class="form-field">
+        <h3>Join a Chat</h3>
+      </div>
+      <div class="form-field">
+        <label>Display Name</label>
+        <!--Autofocus means the input field will automatically be selected when the client hits the page.--->
+        <input type="text" name="name" autofocus/>
+      </div>
+      <div class="form-field">
+        <label>Room Name</label>
+        <input type="text" name="room"/>
+      </div>
+      <div class="form-field">
+        <button>Join</button>
+      </div>
+    <form>
   </div>
-
-  <div class="chat__main">
-    <ol id="messages" class="chat__messages">
-
-    </ol>
-    <div class="chat__footer">
-      <form id="message-form">
-        <input name="message" type="text" placeholder="Have something to say?" autofocus autocomplete="off"/>
-        <button>Send</button>
-      </form>
-      <button id="send-location">Send location</button>
-    </div>
-  </div>
-
-  <script id="message-template" type="text/template">
-    <li class="message">
-      <div class="message__title">
-        <h4>{{from}}</h4>
-        <span>{{time}}</span>
-      </div>
-      <div class="message__body">
-        <p>{{text}}</p>
-      </div>
-  </li>
-  </script>
-
-  <script id="location-message-template" type="text/template">
-    <li class="message">
-      <div class="message__title">
-        <h4>{{from}}</h4>
-        <span>{{time}}</span>
-      </div>
-      <div class="message__body">
-        <p>Check out my <a href="{{url}}" target="_blank">current location</a>.</p>
-      </div>
-  </li>
-  </script>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/index.js"></script>
-  <script src="/js/libs/moment.js"></script>
-  <script src="/js/libs/mustache.js"></script>
 </body>
-
 
 </html>
