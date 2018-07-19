@@ -4,7 +4,7 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 //Notice how the hop back a folder is cleared out.
 const publicPath = path.join(__dirname, '../public');
@@ -34,6 +34,10 @@ io.on('connection', (socket) => {
   socket.on('createMessage', (message, callback) => {
     callback('Data received.');
     io.emit('newMessage', generateMessage(message.from, message.text));
+  });
+
+  socket.on('createLocationMessage', function (location) {
+    io.emit('newLocationMessage', generateLocationMessage('Admin', location.latitude, location.longitude));
   });
 
   socket.on('disconnect', () => {

@@ -14,6 +14,17 @@ socket.on('newMessage', (message) => {
   document.querySelector('#messages').appendChild(li);
 });
 
+socket.on('newLocationMessage', function(locationMessage) {
+  let li = document.createElement('li');
+  let a = document.createElement('a');
+  a.setAttribute('target', '_blank');
+  a.setAttribute('href', locationMessage.url);
+  a.innerHTML = 'here';
+  li.innerHTML = `${locationMessage.from} is `;
+  li.appendChild(a);
+  document.querySelector('#messages').appendChild(li);
+});
+
 socket.on('disconnect', () => {
   console.log('Disconnected from server.');
 });
@@ -21,6 +32,7 @@ socket.on('disconnect', () => {
 var messageForm = document.getElementById('message-form');
 //The e (event) argument is crucial for overriding default behavior.
 //It seems that 'submit' is a built-in event for forms. Nice.
+//Notice here, because it's a form, we have 'submit,' not 'click.'
 messageForm.addEventListener('submit', function (e) {
   e.preventDefault();
   socket.emit('createMessage', {
@@ -30,5 +42,18 @@ messageForm.addEventListener('submit', function (e) {
     text: document.querySelector('input[name=message]').value
   }, function (data) {
     console.log(data);
+  });
+});
+
+var locationButton = document.getElementById('send-location');
+locationButton.addEventListener('click', function () {
+  if (!navigator.geolocation) {
+    return alert('Geolocation unavailable on current browser.');
+  }
+
+  navigator.geolocation.getCurrentPosition(function (position) {
+    socket.emit('createLocationMessage', {latitude: position.coords.latitude, longitude: position.coords.longitude});
+  }, function () {
+    return alert('Unable to share location.');
   });
 });
