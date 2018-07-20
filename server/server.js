@@ -53,13 +53,15 @@ io.on('connection', (socket) => {
     //Clears the message form.
     callback();
     //Emits the submitted message as newMessage, if not blank.
+    var user = users.getUser(socket.id);
     if (isRealString(message.text)) {
-      io.to(message.room).emit('newMessage', generateMessage(message.from, message.text));
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
     };
   });
 
   socket.on('createLocationMessage', function (location) {
-    io.to(location.room).emit('newLocationMessage', generateLocationMessage(location.from, location.latitude, location.longitude));
+    var user = users.getUser(socket.id);
+    io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, location.latitude, location.longitude));
   });
 
   socket.on('disconnect', () => {

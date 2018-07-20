@@ -113,10 +113,7 @@ var messageTextBox = document.querySelector('input[name=message]');
 
 messageForm.addEventListener('submit', function (e) {
   e.preventDefault();
-  var params = jQuery.deparam(window.location.search);
   socket.emit('createMessage', {
-    from: params.name,
-    room: params.room,
     //Name of element, with attribute and value inside brackets.
     //It seems '.value' is a property of the element. Cool!
     text: messageTextBox.value
@@ -128,7 +125,6 @@ messageForm.addEventListener('submit', function (e) {
 
 var locationButton = document.getElementById('send-location');
 locationButton.addEventListener('click', function () {
-  var params = jQuery.deparam(window.location.search);
   if (!navigator.geolocation) {
     return alert('Geolocation unavailable on current browser.');
   }
@@ -137,7 +133,7 @@ locationButton.addEventListener('click', function () {
   locationButton.innerHTML = 'Sending location...'
   //Async, so two callbacks, one success and one error.
   navigator.geolocation.getCurrentPosition(function (position) {
-    socket.emit('createLocationMessage', {from: params.name, room: params.room, latitude: position.coords.latitude, longitude: position.coords.longitude});
+    socket.emit('createLocationMessage', {latitude: position.coords.latitude, longitude: position.coords.longitude});
     //Reset button, as socket.emit will mean the response has come back.
     locationButton.innerHTML = 'Send location'
     locationButton.removeAttribute('disabled');
