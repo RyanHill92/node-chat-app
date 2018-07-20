@@ -32,6 +32,18 @@ socket.on('connect', () => {
   // socket.emit('createMessage', {from: 'Client', text: 'Say hi to my friends, please.'}, function (data) {
   //   console.log(data);
   // });
+  var params = jQuery.deparam(window.location.search);
+  //The event, the data to send, and the callback for the listener to fire as acknowledgement.
+  socket.emit('join', params, function (err) {
+    //If callback has an argument, the error case here will fire.
+    if (err) {
+      alert(err);
+      //Cool! A way to redirect a user.
+      window.location.href = '/';
+    } else {
+      console.log('No error.');
+    }
+  });
 });
 
 socket.on('newMessage', (message) => {
@@ -56,11 +68,13 @@ socket.on('newMessage', (message) => {
 socket.on('newLocationMessage', function(locationMessage) {
   //Grabs the whole block of HTML inside the script tags.
   var template = document.querySelector('#location-message-template').innerHTML;
+  //Uses the sent data to populate the template.
   var html = Mustache.render(template, {
     from: locationMessage.from,
     time: moment(locationMessage.createdAt).format('h:mm a'),
     url: locationMessage.url
   });
+  //Adds the populated template block to the messages element.
   document.querySelector('#messages').innerHTML += html;
 
   // let time = moment(locationMessage.createdAt).format('h:mm a');
@@ -78,6 +92,18 @@ socket.on('disconnect', () => {
   console.log('Disconnected from server.');
 });
 
+socket.on('updateUserList', (list) => {
+  var userList = document.createElement('ol');
+  list.forEach((name) => {
+    var listItem = document.createElement('li');
+    var user = document.createTextNode(name);
+    listItem.appendChild(user);
+    userList.appendChild(listItem);
+  });
+  document.querySelector('#users').innerHTML = '';
+  document.querySelector('#users').appendChild(userList);
+});
+
 var messageForm = document.getElementById('message-form');
 //The e (event) argument is crucial for overriding default behavior.
 //It seems that 'submit' is a built-in event for forms. Nice.
@@ -87,27 +113,32 @@ var messageTextBox = document.querySelector('input[name=message]');
 
 messageForm.addEventListener('submit', function (e) {
   e.preventDefault();
+  var params = jQuery.deparam(window.location.search);
   socket.emit('createMessage', {
-    from: 'User',
+    from: params.name,
+    room: params.room,
     //Name of element, with attribute and value inside brackets.
     //It seems '.value' is a property of the element. Cool!
     text: messageTextBox.value
-  }, function (data) {
+    //After the data, the acknowledgement callback, which will be a cleared form.
+  }, function () {
     messageTextBox.value = '';
   });
 });
 
 var locationButton = document.getElementById('send-location');
 locationButton.addEventListener('click', function () {
+  var params = jQuery.deparam(window.location.search);
   if (!navigator.geolocation) {
     return alert('Geolocation unavailable on current browser.');
   }
-
+  //Disable button while awaiting response from geolocation API.
   locationButton.setAttribute('disabled', 'disabled');
   locationButton.innerHTML = 'Sending location...'
-
+  //Async, so two callbacks, one success and one error.
   navigator.geolocation.getCurrentPosition(function (position) {
-    socket.emit('createLocationMessage', {latitude: position.coords.latitude, longitude: position.coords.longitude});
+    socket.emit('createLocationMessage', {from: params.name, room: params.room, latitude: position.coords.latitude, longitude: position.coords.longitude});
+    //Reset button, as socket.emit will mean the response has come back.
     locationButton.innerHTML = 'Send location'
     locationButton.removeAttribute('disabled');
   }, function () {
